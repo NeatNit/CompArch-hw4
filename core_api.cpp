@@ -5,14 +5,16 @@
 #include <vector>
 #include <stdexcept>
 
+using std::vector;
 
 class Thread
 {
-	std::vector<int32_t> regs;
+	vector<int32_t> regs;
 	int tid;
 	uint32_t line;
 public:
-	Thread(int tid) : regs(REGS_COUNT, 0), tid(tid), line(0) {};
+	int release_time;
+	Thread(int tid) : regs(REGS_COUNT, 0), tid(tid), line(0), release_time(0) {}
 
 	// run a single instruction, and return the latency (0 for arithmetic instructions)
 	// -1 denotes HALT
@@ -59,21 +61,71 @@ public:
 	}
 };
 
-void CORE_BlockedMT() {
-}
+class Finegrained
+{
+	int cycle, instructions;
+	vector<Threads> threads;
+public:
+	Finegrained() : cycle(0), instructions(0), threads() {
+		for (int tid = 0; tid < SIM_GetThreadNum(); ++tid)
+		{
+			threads.emplace_back(tid);
+		}
+	}
 
-void CORE_FinegrainedMT() {
+	void Run() {
+		int running_threads = threads.size();
+		int last_run_thread = -1;
+		while (running_threads > 0) {
+			for (int tid = 0; tid < threads.size(); ++tid)
+			{
+				if (threads[tid].release_time >= 0 && threads[tid].release_time <= cycle) {
+					// Thread is not halted (>= 0) and not waiting (<= cycle)
+					int delay = threads[tid].RunInstruction();
+					++cycle; ++instructions;
+					last_run_thread = tid;
+
+					if (delay < 0) {
+						// halted
+						threads[tid].release_time = -1;
+						--running_threads;
+					} else {
+						// thread is locked until delay has passed
+						// (note that cycle has already been incremented)
+						threads[tid].release_time = cycle + delay;
+					}
+				} else if (last_run_thread == tid) {
+					// idle cycle
+					++cycle;
+				}
+			}
+		}
+	}
+
+};
+
+void CORE_BlockedMT() {
 }
 
 double CORE_BlockedMT_CPI(){
 	return 0;
 }
 
-double CORE_FinegrainedMT_CPI(){
-	return 0;
+void CORE_BlockedMT_CTX(tcontext* context, int threadid) {
 }
 
-void CORE_BlockedMT_CTX(tcontext* context, int threadid) {
+
+Finegrained * fg;
+
+void CORE_FinegrainedMT() {
+	fg = new Finegrained();
+	fg.Run();
+}
+
+double CORE_FinegrainedMT_CPI(){
+
+	delete fg;
+	return 0;
 }
 
 void CORE_FinegrainedMT_CTX(tcontext* context, int threadid) {

@@ -78,7 +78,7 @@ class Blocked
 	vector<Thread> threads;
 public:
 	Blocked() : cycle(0), instructions(0), threads() {
-		for (int tid = 0; tid < SIM_GetThreadNum(); ++tid)
+		for (int tid = 0; tid < SIM_GetThreadsNum(); ++tid)
 		{
 			threads.emplace_back(tid);
 		}
@@ -88,7 +88,7 @@ public:
 		int running_threads = threads.size();
 		int active_thread = -1;
 		while (running_threads > 0) {
-			for (int tid = 0; tid < threads.size(); ++tid) {
+			for (int tid = 0; tid < static_cast<int>(threads.size()); ++tid) {
 				if (active_thread == tid) {
 					// no threads can progress, idle cycle
 					++cycle;
@@ -147,7 +147,7 @@ public:
 		int running_threads = threads.size();
 		int last_run_thread = -1;
 		while (running_threads > 0) {
-			for (int tid = 0; tid < threads.size(); ++tid) {
+			for (int tid = 0; tid < static_cast<int>(threads.size()); ++tid) {
 				if (threads[tid].release_time >= 0 && threads[tid].release_time <= cycle) {
 					// Thread is not halted (>= 0) and not waiting (<= cycle)
 					int delay = threads[tid].RunInstruction();

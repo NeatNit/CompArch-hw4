@@ -66,7 +66,7 @@ public:
 			}
 			case CMD_STORE: {
 				cout << "STORE";
-				uint32_t addr = static_cast<uint32_t>(inst.dst_index);
+				uint32_t addr = static_cast<uint32_t>(regs[inst.dst_index]);
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataWrite(addr, regs[inst.src1_index]);
 				cout << "\t$" << inst.src1_index << " = " << regs[inst.src1_index] << " to addr = " << std::hex << std::showbase << addr << std::dec;

@@ -73,10 +73,10 @@ public:
 		throw std::domain_error("Unrecognized opcode: " + std::to_string(inst.opcode));
 	}
 
-	void GetContext(tcontext context[]) {
+	void GetContext(tcontext & context) {
 		for (int i = 0; i < REGS_COUNT; ++i)
 		{
-			context[0].reg[i] = regs[i];
+			context.reg[i] = regs[i];
 		}
 	}
 };
@@ -142,11 +142,7 @@ public:
 	}
 
 	void GetContext(tcontext context[], int threadid) {
-		threads[threadid].GetContext(context);
-		for (int i = 0; i < REGS_COUNT; ++i)
-		{
-			context[0].reg[i] = 20; // debug
-		}
+		threads[threadid].GetContext(context[threadid]);
 	}
 
 	double GetCPI() {
@@ -197,7 +193,7 @@ public:
 	}
 
 	void GetContext(tcontext context[], int threadid) {
-		threads[threadid].GetContext(context);
+		threads[threadid].GetContext(context[threadid]);
 	}
 
 	double GetCPI() {
@@ -222,7 +218,6 @@ double CORE_BlockedMT_CPI(){
 }
 
 void CORE_BlockedMT_CTX(tcontext context[], int threadid) {
-	cout << "CORE_BlockedMT_CTX, threadid = " << threadid << ", context = " << context << endl;
 	blc->GetContext(context, threadid);
 }
 

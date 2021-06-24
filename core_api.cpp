@@ -59,13 +59,13 @@ public:
 			case CMD_HALT:
 				return -1;
 		}
-		throw domain_error("Unrecognized opcode: " + std::to_string(inst.opcode));
+		throw std::domain_error("Unrecognized opcode: " + std::to_string(inst.opcode));
 	}
 
 	void GetContext(tcontext context[]) {
 		for (int i = 0; i < REGS_COUNT; ++i)
 		{
-			context[0].regs[i] = regs[i];
+			context[0].reg[i] = regs[i];
 		}
 	}
 };
@@ -75,7 +75,7 @@ public:
 class Blocked
 {
 	int cycle, instructions;
-	vector<Threads> threads;
+	vector<Thread> threads;
 public:
 	Blocked() : cycle(0), instructions(0), threads() {
 		for (int tid = 0; tid < SIM_GetThreadNum(); ++tid)
@@ -134,10 +134,10 @@ public:
 class Finegrained
 {
 	int cycle, instructions;
-	vector<Threads> threads;
+	vector<Thread> threads;
 public:
 	Finegrained() : cycle(0), instructions(0), threads() {
-		for (int tid = 0; tid < SIM_GetThreadNum(); ++tid)
+		for (int tid = 0; tid < SIM_GetThreadsNum(); ++tid)
 		{
 			threads.emplace_back(tid);
 		}

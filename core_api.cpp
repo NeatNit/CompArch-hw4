@@ -116,8 +116,8 @@ public:
 							cout << cycle + c << "\tswitch " << active_thread << " > " << tid << endl;
 						}
 						cycle += SIM_GetSwitchCycles();
-						active_thread = tid;
 					}
+					active_thread = tid;
 
 					// Run an instruction
 					cout << cycle << "\t" << "thread " << tid << "\t";

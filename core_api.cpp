@@ -98,6 +98,8 @@ public:
 	void Run() {
 		int running_threads = threads.size();
 		int active_thread = -1;
+
+		cout << "RUNNING BLOCKED SIMULATOR" << endl;
 		while (running_threads > 0) {
 			for (int tid = 0; tid < static_cast<int>(threads.size()); ++tid) {
 				if (active_thread == tid) {
@@ -108,9 +110,7 @@ public:
 				while (threads[tid].release_time >= 0 && threads[tid].release_time <= cycle) {
 					// Thread is not halted (>= 0) and not waiting (<= cycle)
 					// Perform context switch (if needed)
-					cout << "cycle = " << cycle << ", active_thread = " << active_thread << ", tid = " << tid << ", release_time = " << threads[tid].release_time << endl;
 					if (active_thread != tid && active_thread != -1) {
-						cout << "need to context switch" << endl;
 						for (int c = 0; c < SIM_GetSwitchCycles(); ++c)
 						{
 							cout << cycle + c << "\tswitch " << active_thread << " > " << tid << endl;
@@ -166,11 +166,15 @@ public:
 	void Run() {
 		int running_threads = threads.size();
 		int last_run_thread = -1;
+
+		cout << "RUNNING FINEGRAINED SIMULATOR" << endl;
 		while (running_threads > 0) {
 			for (int tid = 0; tid < static_cast<int>(threads.size()); ++tid) {
 				if (threads[tid].release_time >= 0 && threads[tid].release_time <= cycle) {
 					// Thread is not halted (>= 0) and not waiting (<= cycle)
+					cout << cycle << "\t" << "thread " << tid << "\t";
 					int delay = threads[tid].RunInstruction();
+					cout << endl;
 					++cycle; ++instructions;
 					last_run_thread = tid;
 
@@ -186,6 +190,7 @@ public:
 					}
 				} else if (last_run_thread == tid) {
 					// no threads can progress, idle cycle
+					cout << cycle << "\tidle" << endl;
 					++cycle;
 				}
 			}

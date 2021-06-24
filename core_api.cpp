@@ -142,6 +142,10 @@ public:
 	}
 
 	void GetContext(tcontext context[], int threadid) {
+		for (int i = 0; i < REGS_COUNT; ++i)
+		{
+			context[0].reg[i] = 20; // debug
+		}
 		threads[threadid].GetContext(context);
 	}
 

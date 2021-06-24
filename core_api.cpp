@@ -59,6 +59,13 @@ public:
 		}
 		throw domain_error("Unrecognized opcode: " + std::to_string(inst.opcode));
 	}
+
+	void GetContext(tcontext context[]) {
+		for (int i = 0; i < REGS_COUNT; ++i)
+		{
+			context[0].regs[i] = regs[i];
+		}
+	}
 };
 
 class Finegrained
@@ -92,16 +99,24 @@ public:
 					} else {
 						// thread is locked until delay has passed
 						// (note that cycle has already been incremented)
+						// for arithmetic operations, delay is 0 so it doesn't matter
 						threads[tid].release_time = cycle + delay;
 					}
 				} else if (last_run_thread == tid) {
-					// idle cycle
+					// no threads can progress, idle cycle
 					++cycle;
 				}
 			}
 		}
 	}
 
+	void GetContext(tcontext context[], int threadid) {
+		threads[threadid].GetContext(context);
+	}
+
+	double GetCPI() {
+		return static_cast<double>(cycle) / static_cast<double>(instructions);
+	}
 };
 
 void CORE_BlockedMT() {
@@ -111,7 +126,7 @@ double CORE_BlockedMT_CPI(){
 	return 0;
 }
 
-void CORE_BlockedMT_CTX(tcontext* context, int threadid) {
+void CORE_BlockedMT_CTX(tcontext context[], int threadid) {
 }
 
 
@@ -119,14 +134,15 @@ Finegrained * fg;
 
 void CORE_FinegrainedMT() {
 	fg = new Finegrained();
-	fg.Run();
+	fg->Run();
 }
 
 double CORE_FinegrainedMT_CPI(){
-
+	double cpi = fg->GetCPI();
 	delete fg;
-	return 0;
+	return cpi;
 }
 
-void CORE_FinegrainedMT_CTX(tcontext* context, int threadid) {
+void CORE_FinegrainedMT_CTX(tcontext context[], int threadid) {
+	fg->GetContext(context, threadid);
 }

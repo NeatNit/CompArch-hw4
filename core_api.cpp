@@ -37,18 +37,22 @@ public:
 			case CMD_ADD:
 				cout << "ADD";
 				regs[inst.dst_index] = regs[inst.src1_index] + regs[inst.src2_index_imm];
+				cout << "\t$" << inst.dst_index << " = " << regs[inst.dst_index];
 				return 0;
 			case CMD_SUB:
 				cout << "SUB";
 				regs[inst.dst_index] = regs[inst.src1_index] - regs[inst.src2_index_imm];
+				cout << "\t$" << inst.dst_index << " = " << regs[inst.dst_index];
 				return 0;
 			case CMD_ADDI:
 				cout << "ADDI";
 				regs[inst.dst_index] = regs[inst.src1_index] + inst.src2_index_imm;
+				cout << "\t$" << inst.dst_index << " = " << regs[inst.dst_index];
 				return 0;
 			case CMD_SUBI:
 				cout << "SUBI";
 				regs[inst.dst_index] = regs[inst.src1_index] - inst.src2_index_imm;
+				cout << "\t$" << inst.dst_index << " = " << regs[inst.dst_index];
 				return 0;
 			case CMD_LOAD: {
 				cout << "LOAD";
@@ -57,6 +61,7 @@ public:
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataRead(addr, &data);
 				regs[inst.dst_index] = data;
+				cout << "\t$" << inst.dst_index << " = " << regs[inst.dst_index];
 				return SIM_GetLoadLat();
 			}
 			case CMD_STORE: {
@@ -64,6 +69,7 @@ public:
 				uint32_t addr = static_cast<uint32_t>(inst.dst_index);
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataWrite(addr, regs[inst.src1_index]);
+				cout << "\t$" << inst.src1_index << " = " << regs[inst.src1_index];
 				return SIM_GetStoreLat();
 			}
 			case CMD_HALT:
@@ -73,10 +79,10 @@ public:
 		throw std::domain_error("Unrecognized opcode: " + std::to_string(inst.opcode));
 	}
 
-	void GetContext(tcontext & context) {
+	void GetContext(tcontext context[]) {
 		for (int i = 0; i < REGS_COUNT; ++i)
 		{
-			context.reg[i] = regs[i];
+			context[tid].reg[i] = regs[i];
 		}
 	}
 };
@@ -142,7 +148,7 @@ public:
 	}
 
 	void GetContext(tcontext context[], int threadid) {
-		threads[threadid].GetContext(context[threadid]);
+		threads[threadid].GetContext(context);
 	}
 
 	double GetCPI() {
@@ -198,7 +204,7 @@ public:
 	}
 
 	void GetContext(tcontext context[], int threadid) {
-		threads[threadid].GetContext(context[threadid]);
+		threads[threadid].GetContext(context);
 	}
 
 	double GetCPI() {

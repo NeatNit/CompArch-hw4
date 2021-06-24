@@ -42,18 +42,20 @@ public:
 			case CMD_SUBI:
 				regs[inst.dst_index] = regs[inst.src1_index] - inst.src2_index_imm;
 				return 0;
-			case CMD_LOAD:
+			case CMD_LOAD: {
 				int32_t data;
 				uint32_t addr = static_cast<uint32_t>(regs[inst.src1_index]);
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataRead(addr, &data);
 				regs[inst.dst_index] = data;
 				return SIM_GetLoadLat();
-			case CMD_STORE:
+			}
+			case CMD_STORE: {
 				uint32_t addr = static_cast<uint32_t>(inst.dst_index);
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataWrite(addr, regs[inst.src1_index]);
 				return SIM_GetStoreLat();
+			}
 			case CMD_HALT:
 				return -1;
 		}

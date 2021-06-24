@@ -142,11 +142,11 @@ public:
 	}
 
 	void GetContext(tcontext context[], int threadid) {
+		threads[threadid].GetContext(context);
 		for (int i = 0; i < REGS_COUNT; ++i)
 		{
 			context[0].reg[i] = 20; // debug
 		}
-		threads[threadid].GetContext(context);
 	}
 
 	double GetCPI() {

@@ -4,7 +4,7 @@
 #include "sim_api.h"
 #include <vector>
 #include <stdexcept>
-#include <stdio>
+#include <iostream>
 
 using std::vector;
 using std::cout;

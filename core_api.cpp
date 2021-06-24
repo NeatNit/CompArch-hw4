@@ -68,6 +68,68 @@ public:
 	}
 };
 
+
+
+class Blocked
+{
+	int cycle, instructions;
+	vector<Threads> threads;
+public:
+	Blocked() : cycle(0), instructions(0), threads() {
+		for (int tid = 0; tid < SIM_GetThreadNum(); ++tid)
+		{
+			threads.emplace_back(tid);
+		}
+	}
+
+	void Run() {
+		int running_threads = threads.size();
+		int active_thread = -1;
+		while (running_threads > 0) {
+			for (int tid = 0; tid < threads.size(); ++tid)
+			{
+				if (active_thread == tid) {
+					// no threads can progress, idle cycle
+					++cycle;
+				}
+				while (threads[tid].release_time >= 0 && threads[tid].release_time <= cycle) {
+					// Thread is not halted (>= 0) and not waiting (<= cycle)
+					// Perform context switch (if needed)
+					if (active_thread != tid && active_thread != -1) {
+						cycle += SIM_GetSwitchCycles();
+						active_thread = tid;
+					}
+
+					// Run an instruction
+					int delay = threads[tid].RunInstruction();
+					++cycle; ++instructions;
+
+					// update thread's release time
+					if (delay < 0) {
+						// halted
+						threads[tid].release_time = -1;
+						--running_threads;
+					} else {
+						// thread is locked until delay has passed
+						// (note that cycle has already been incremented)
+						// for arithmetic operations, delay is 0 so it doesn't matter
+						threads[tid].release_time = cycle + delay;
+					}
+				}
+			}
+		}
+	}
+
+	void GetContext(tcontext context[], int threadid) {
+		threads[threadid].GetContext(context);
+	}
+
+	double GetCPI() {
+		return static_cast<double>(cycle) / static_cast<double>(instructions);
+	}
+};
+
+
 class Finegrained
 {
 	int cycle, instructions;
@@ -119,14 +181,21 @@ public:
 	}
 };
 
+Blocked * blc;
+
 void CORE_BlockedMT() {
+	blc = new Blocked();
+	blc->Run();
 }
 
 double CORE_BlockedMT_CPI(){
-	return 0;
+	double cpi = blc->GetCPI();
+	delete blc;
+	return cpi;
 }
 
 void CORE_BlockedMT_CTX(tcontext context[], int threadid) {
+	blc->GetContext(context, threadid);
 }
 
 

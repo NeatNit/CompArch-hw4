@@ -108,7 +108,9 @@ public:
 				while (threads[tid].release_time >= 0 && threads[tid].release_time <= cycle) {
 					// Thread is not halted (>= 0) and not waiting (<= cycle)
 					// Perform context switch (if needed)
+					cout << "cycle = " << cycle << ", active_thread = " << active_thread << ", tid = " << tid << ", release_time = " << threads[tid].release_time << endl;
 					if (active_thread != tid && active_thread != -1) {
+						cout << "need to context switch" << endl;
 						for (int c = 0; c < SIM_GetSwitchCycles(); ++c)
 						{
 							cout << cycle + c << "\tswitch " << active_thread << " > " << tid << endl;

@@ -44,13 +44,13 @@ public:
 				return 0;
 			case CMD_LOAD:
 				int32_t data;
-				uint32_t addr = reinterpret_cast<uint32_t>(regs[inst.src1_index]);
+				uint32_t addr = static_cast<uint32_t>(regs[inst.src1_index]);
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataRead(addr, &data);
 				regs[inst.dst_index] = data;
 				return SIM_GetLoadLat();
 			case CMD_STORE:
-				uint32_t addr = reinterpret_cast<uint32_t>(inst.dst_index);
+				uint32_t addr = static_cast<uint32_t>(inst.dst_index);
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataWrite(addr, regs[inst.src1_index]);
 				return SIM_GetStoreLat();
@@ -86,8 +86,7 @@ public:
 		int running_threads = threads.size();
 		int active_thread = -1;
 		while (running_threads > 0) {
-			for (int tid = 0; tid < threads.size(); ++tid)
-			{
+			for (int tid = 0; tid < threads.size(); ++tid) {
 				if (active_thread == tid) {
 					// no threads can progress, idle cycle
 					++cycle;
@@ -146,8 +145,7 @@ public:
 		int running_threads = threads.size();
 		int last_run_thread = -1;
 		while (running_threads > 0) {
-			for (int tid = 0; tid < threads.size(); ++tid)
-			{
+			for (int tid = 0; tid < threads.size(); ++tid) {
 				if (threads[tid].release_time >= 0 && threads[tid].release_time <= cycle) {
 					// Thread is not halted (>= 0) and not waiting (<= cycle)
 					int delay = threads[tid].RunInstruction();

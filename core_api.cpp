@@ -32,20 +32,26 @@ public:
 		// Do the instruction
 		switch(inst.opcode) {
 			case CMD_NOP:
+				cout << "NOP";
 				return 0;
 			case CMD_ADD:
+				cout << "ADD";
 				regs[inst.dst_index] = regs[inst.src1_index] + regs[inst.src2_index_imm];
 				return 0;
 			case CMD_SUB:
+				cout << "SUB";
 				regs[inst.dst_index] = regs[inst.src1_index] - regs[inst.src2_index_imm];
 				return 0;
 			case CMD_ADDI:
+				cout << "ADDI";
 				regs[inst.dst_index] = regs[inst.src1_index] + inst.src2_index_imm;
 				return 0;
 			case CMD_SUBI:
+				cout << "SUBI";
 				regs[inst.dst_index] = regs[inst.src1_index] - inst.src2_index_imm;
 				return 0;
 			case CMD_LOAD: {
+				cout << "LOAD";
 				int32_t data;
 				uint32_t addr = static_cast<uint32_t>(regs[inst.src1_index]);
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
@@ -54,12 +60,14 @@ public:
 				return SIM_GetLoadLat();
 			}
 			case CMD_STORE: {
+				cout << "STORE";
 				uint32_t addr = static_cast<uint32_t>(inst.dst_index);
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataWrite(addr, regs[inst.src1_index]);
 				return SIM_GetStoreLat();
 			}
 			case CMD_HALT:
+				cout << "HALT";
 				return -1;
 		}
 		throw std::domain_error("Unrecognized opcode: " + std::to_string(inst.opcode));
@@ -94,18 +102,25 @@ public:
 			for (int tid = 0; tid < static_cast<int>(threads.size()); ++tid) {
 				if (active_thread == tid) {
 					// no threads can progress, idle cycle
+					cout << cycle << "\tidle" << endl;
 					++cycle;
 				}
 				while (threads[tid].release_time >= 0 && threads[tid].release_time <= cycle) {
 					// Thread is not halted (>= 0) and not waiting (<= cycle)
 					// Perform context switch (if needed)
 					if (active_thread != tid && active_thread != -1) {
+						for (int c = 0; c < SIM_GetSwitchCycles(); ++c)
+						{
+							cout << cycle + c << "\tswitch " << active_thread << " > " << tid << endl;
+						}
 						cycle += SIM_GetSwitchCycles();
 						active_thread = tid;
 					}
 
 					// Run an instruction
+					cout << cycle << "\t" << "thread " << tid << "\t";
 					int delay = threads[tid].RunInstruction();
+					cout << endl;
 					++cycle; ++instructions;
 
 					// update thread's release time

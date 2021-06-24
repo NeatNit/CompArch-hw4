@@ -61,7 +61,7 @@ public:
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataRead(addr, &data);
 				regs[inst.dst_index] = data;
-				cout << "\t$" << inst.dst_index << " = " << regs[inst.dst_index];
+				cout << "\t$" << inst.dst_index << " = " << regs[inst.dst_index] << " from addr = 0x" << std::hex << addr;
 				return SIM_GetLoadLat();
 			}
 			case CMD_STORE: {
@@ -69,7 +69,7 @@ public:
 				uint32_t addr = static_cast<uint32_t>(inst.dst_index);
 				addr += inst.isSrc2Imm ? inst.src2_index_imm : regs[inst.src2_index_imm];
 				SIM_MemDataWrite(addr, regs[inst.src1_index]);
-				cout << "\t$" << inst.src1_index << " = " << regs[inst.src1_index];
+				cout << "\t$" << inst.src1_index << " = " << regs[inst.src1_index] << " to addr = 0x" << std::hex << addr;
 				return SIM_GetStoreLat();
 			}
 			case CMD_HALT:

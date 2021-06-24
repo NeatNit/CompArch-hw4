@@ -4,8 +4,11 @@
 #include "sim_api.h"
 #include <vector>
 #include <stdexcept>
+#include <stdio>
 
 using std::vector;
+using std::cout;
+using std::endl;
 
 class Thread
 {
@@ -184,8 +187,11 @@ public:
 Blocked * blc;
 
 void CORE_BlockedMT() {
+	cout << "CORE_BlockedMT" << endl;
 	blc = new Blocked();
+	cout << "Running..." << endl;
 	blc->Run();
+	cout << "Done" << endl;
 }
 
 double CORE_BlockedMT_CPI(){
@@ -202,8 +208,11 @@ void CORE_BlockedMT_CTX(tcontext context[], int threadid) {
 Finegrained * fg;
 
 void CORE_FinegrainedMT() {
+	cout << "CORE_BlockedMT" << endl;
 	fg = new Finegrained();
+	cout << "Running..." << endl;
 	fg->Run();
+	cout << "Done" << endl;
 }
 
 double CORE_FinegrainedMT_CPI(){

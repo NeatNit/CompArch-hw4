@@ -117,10 +117,10 @@ public:
 					// Thread is not halted (>= 0) and not waiting (<= cycle)
 					// Perform context switch (if needed)
 					if (active_thread != tid && active_thread != -1) {
-						for (int c = 0; c < SIM_GetSwitchCycles(); ++c)
-						{
-							// cout << cycle + c << "\tswitch " << active_thread << " > " << tid << endl;
-						}
+						// for (int c = 0; c < SIM_GetSwitchCycles(); ++c)
+						// {
+						// 	cout << cycle + c << "\tswitch " << active_thread << " > " << tid << endl;
+						// }
 						cycle += SIM_GetSwitchCycles();
 					}
 					active_thread = tid;

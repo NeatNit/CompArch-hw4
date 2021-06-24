@@ -222,6 +222,7 @@ double CORE_BlockedMT_CPI(){
 }
 
 void CORE_BlockedMT_CTX(tcontext context[], int threadid) {
+	cout << "CORE_BlockedMT_CTX, threadid = " << threadid << ", context = " << context << endl;
 	blc->GetContext(context, threadid);
 }
 
